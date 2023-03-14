@@ -1,26 +1,108 @@
-# Use the latest 2.1 version of CircleCI pipeline process engine.
-# See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
 
-# Define a job to be invoked later in a workflow.
-# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
+orbs:
+  slack: circleci/slack@4.4.2
+
+commands:
+  notify_slack_error:
+    steps:
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+
+  notify_slack_pass:
+    steps:
+      - slack/notify:
+          event: pass
+          template: basic_success_1
+
+
+parameters:
+  deploy_branch:
+    type: string
+    default: "CXDO-578/slack-notifications"
+
+
 jobs:
-  say-hello:
-    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
+  build:
     docker:
-      - image: cimg/base:stable
-    # Add steps to the job
-    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+      - image: circleci/node:14.17
+    resource_class: medium
     steps:
       - checkout
       - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
+          name: Install SFCC CLI
+          command: |
+            npx sfcc-ci
+      - run:
+          name: Authenticate with SFCC
+          command: |
+            npx sfcc-ci client:auth $CLIENT_ID $CLIENT_SECRET
+      - notify_slack_error
+      - notify_slack_pass
+      
+      # - run:
+      #     name: Status of created sandbox by SFCC User
+      #     command: |
+      #       npx sfcc-ci sandbox:get --sandbox $my_sandbox_id
+      
+      # - run:
+      #     name: List of sandboxes
+      #     command: |
+      #       npx sfcc-ci sandbox:list
+      # - notify_slack_error
+      # - notify_slack_pass
 
-# Invoke jobs via workflows
-# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
+      # - slack/notify:
+      #     custom: |
+      #       {
+      #         "blocks": [
+      #          {
+      #            "type": "section",
+      #            "fields": [
+      #              {
+      #                "type": "mrkdwn"
+      #                "text": "Current Job: $CIRCLE_JOB",
+      #                "emoji": true
+      #              }
+      #          } 
+      #       }
+      #     event: always
+      
+      # - slack/notify:
+      #     branch_pattern: "CXDO-578/slack-notifications"
+      #     channel: devops-notify-sfcc-cd
+      #     event: fail
+      #     template: basic_fail_1
+
+      # - slack/notify:
+      #     branch_pattern: "CXDO-578/slack-notifications"
+      #     channel: devops-notify-sfcc-cd
+      #     event: pass
+      #     template: basic_success_1
+
+
+
+            # if [ "${CIRCLE_JOB}" = "build" ]; then
+            #     if [ "${CIRCLE_BRANCH}" = "CXDO-578/slack-notifications" ]; then
+            #       status=":white_check_mark: Success"
+            #     else
+            #        status=":warning: Failed"
+            #     fi
+            #     curl -X POST -H 'Content-type: application/json' \
+            #     --data '{"text":"'"${status}"' - Build '"${CIRCLE_BUILD_URL}"' on branch '"${CIRCLE_BRANCH}"'"}' \
+            #     ${SLACK_WEBHOOK_URL}
+            #     fi
+
 workflows:
-  say-hello-workflow:
+  version: 2
+  build_and_notify: 
     jobs:
-      - say-hello
+      - build:
+          context:
+            - slack-build-notification-secrets
+          filters:
+            branches:
+              only:
+                - CXDO-578/slack-notifications
+                
