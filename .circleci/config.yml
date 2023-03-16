@@ -82,7 +82,7 @@ workflows:
                                                 },
                                                 {
                                                     "type": "mrkdwn",
-                                                    "text": "*Mentions*: $SLACK_PARAM_MENTIONS"
+                                                    "text": "*Mentions*: "budda.dhanunjayareddy@saks.com" "
                                                 }
                                             ]
                                         },
