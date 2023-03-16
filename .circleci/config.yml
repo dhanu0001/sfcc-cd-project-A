@@ -106,6 +106,6 @@ workflows:
               only:
                 - circleci-project-setup
       - notify:
-         requires:
-           - build-notify
-         context: [slack-notifications] 
+        #  requires:
+        #    - build-notify
+         context: [slack-notifications]
