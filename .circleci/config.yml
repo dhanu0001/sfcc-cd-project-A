@@ -2,18 +2,18 @@ version: 2.1
 orbs:
   slack: circleci/slack@4.10.1
 
-# commands:
-#   notify_slack_error:
-#     steps:
-#       - slack/notify:
-#           event: fail
-#           template: basic_fail_1
+commands:
+  notify_slack_error:
+    steps:
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 
-#   notify_slack_pass:
-#     steps:
-#       - slack/notify:
-#           event: pass
-#           template: basic_success_1
+  notify_slack_pass:
+    steps:
+      - slack/notify:
+          event: pass
+          template: basic_success_1
   
   # trigger_slack_notification:
   #   steps:
@@ -69,19 +69,8 @@ jobs:
           name: List of sandboxes
           command: |
             sfcc-ci sandbox:list
-      
-      - slack/notify:
-            event: fail
-            template: basic_fail_1
-
-      - slack/notify:
-            event: pass
-            template: basic_pass_1
-            channel: $SLACK_DEFAULT_CHANNEL
-      
-      
-      # - notify_slack_error
-      # - notify_slack_pass
+      - notify_slack_error
+      - notify_slack_pass
     
       - when:
           condition:
