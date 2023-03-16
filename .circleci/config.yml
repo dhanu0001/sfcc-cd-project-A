@@ -187,30 +187,48 @@ workflows:
                 event: always
                 custom: |
                   {
-                    "text": "",
-                    "blocks": [
-                      {
-                        "type": "section",
-                        "text": {
-                          "type": "mrkdwn",
-                          "text": "✅ *Success* #${CIRCLE_BUILD_NUM} `${CIRCLE_PROJECT_REPONAME}` on `${CIRCLE_BRANCH}`"
+                        	"text": "CircleCI job succeeded!",
+                        	"blocks": [
+                        		{
+                        			"type": "header",
+                        			"text": {
+                        				"type": "plain_text",
+                        				"text": "Job Succeeded. :white_check_mark:",
+                        				"emoji": true
+                        			}
+                        		},
+                        		{
+                        			"type": "section",
+                        			"fields": [
+                        				{
+                        					"type": "mrkdwn",
+                        					"text": "*Project*: $CIRCLE_PROJECT_REPONAME"
+                        				},
+                                        {
+                                            "type": "mrkdwn",
+                                            "text": "*Job Number*: $CIRCLE_BUILD_NUM"
+                                        },
+                                        {
+                                            "type": "mrkdwn",
+                                            "text": "*When*: $(date +'%m/%d/%Y %T')"
+                                        }
+                        			]
+                        		},
+                        		{
+                        			"type": "actions",
+                        			"elements": [
+                        				{
+                        					"type": "button",
+                        					"text": {
+                        						"type": "plain_text",
+                        						"text": "Visit Job"
+                        					},
+                        					"url": "${CIRCLE_BUILD_URL}"
+                        				}
+                        			]
+                        		}
+                        	]
                         }
-                      },
-                      {
-                        "type": "actions",
-                        "elements": [
-                          {
-                            "type": "button",
-                            "text": {
-                              "type": "plain_text",
-                              "text": "View Job"
-                            },
-                            "url": "${CIRCLE_BUILD_URL}"
-                          }
-                        ]
-                      }
-                    ]
-                  }
           # filters:
           #   branches:
           #     only:
