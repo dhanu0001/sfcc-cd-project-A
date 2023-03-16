@@ -71,11 +71,11 @@ jobs:
       # - notify_slack_error
       # - notify_slack_pass
     
-      - when:
-          condition:
-            equal: [ CXDO-578/slack-notifications, << pipeline.git.branch >> ]
-          steps:
-            - run: echo "I am on slack-notification [branch]"
+      # - when:
+      #     condition:
+      #       equal: [ CXDO-578/slack-notifications, << pipeline.git.branch >> ]
+      #     steps:
+      #       - run: echo "I am on slack-notification [branch]"
             
             
 workflows:
@@ -145,7 +145,55 @@ workflows:
                                 }
                             ]
                         }
-                event: always
+                event: fail
+            
+            - slack/notify:
+                event: pass
+                custom: |
+                  {
+                        	"text": "CircleCI job succeeded!",
+                        	"blocks": [
+                        		{
+                        			"type": "header",
+                        			"text": {
+                        				"type": "plain_text",
+                        				"text": "Job Succeeded. :white_check_mark:",
+                        				"emoji": true
+                        			}
+                        		},
+                        		{
+                        			"type": "section",
+                        			"fields": [
+                        				{
+                        					"type": "mrkdwn",
+                        					"text": "*Project*: $CIRCLE_PROJECT_REPONAME"
+                        				},
+                                        {
+                                            "type": "mrkdwn",
+                                            "text": "*Job Number*: $CIRCLE_BUILD_NUM"
+                                        },
+                                        {
+                                            "type": "mrkdwn",
+                                            "text": "*When*: $(date +'%m/%d/%Y %T')"
+                                        }
+                        			]
+                        		},
+                        		{
+                        			"type": "actions",
+                        			"elements": [
+                        				{
+                        					"type": "button",
+                        					"text": {
+                        						"type": "plain_text",
+                        						"text": "Visit Job"
+                        					},
+                        					"url": "${CIRCLE_BUILD_URL}"
+                        				}
+                        			]
+                        		}
+                        	]
+                        }
+
           filters:
             branches:
               only:
