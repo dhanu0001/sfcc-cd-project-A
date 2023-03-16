@@ -82,7 +82,7 @@ workflows:
                                                 },
                                                 {
                                                     "type": "mrkdwn",
-                                                    "text": "*Mentions*: "budda.dhanunjayareddy@saks.com" "
+                                                    "text": "*Job Name*: $CIRCLE_JOB"
                                                 }
                                             ]
                                         },
