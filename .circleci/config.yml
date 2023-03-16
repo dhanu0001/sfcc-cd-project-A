@@ -115,10 +115,6 @@ workflows:
                                                     "type": "mrkdwn",
                                                     "text": "*When*: $(date +'%m/%d/%Y %T')"
                                                 },
-                                                {
-                                                    "type": "mrkdwn",
-                                                    "text": "*Mentions*: $SLACK_PARAM_MENTIONS"
-                                                }
                                             ]
                                         },
                                         {
@@ -168,6 +164,10 @@ workflows:
                         					"type": "mrkdwn",
                         					"text": "*Project*: $CIRCLE_PROJECT_REPONAME"
                         				},
+                                        {
+                                            "type": "mrkdwn",
+                                            "text": "*Jobr*: $CIRCLE_JOB"
+                                        },
                                         {
                                             "type": "mrkdwn",
                                             "text": "*Job Number*: $CIRCLE_BUILD_NUM"
