@@ -1,7 +1,6 @@
 version: 2.1
-
 orbs:
-  slack: circleci/slack@4.4.2
+  slack: circleci/slack@4.10.1
 
 commands:
   notify_slack_error:
@@ -15,94 +14,155 @@ commands:
       - slack/notify:
           event: pass
           template: basic_success_1
-
+  
+  # trigger_slack_notification:
+  #   steps:
+  #     - slack/notify:
+  #         custom: |
+  #           {
+  #             "text":"CircleCI job succeeded!",
+  #             "blocks": [
+  #               {
+  #                 "type":"header",
+  #                 "text":{
+  #                   "type":"plain_text",
+  #                   "text":"Job Succeeded! :white_check_mark:",
+  #                   "emoji":true
+  #                 }
+  #               },
+  #               {
+  #                 "type": "section",
+  #                 "fields": [
+  #                   {
+  #                     "type":"mrkdwn",
+  #                     "text":"*When*: $(date +'%m/%d/%Y %T')"
+  #                   },
+  #                 ]
+  #               }
+  #             ]
+  #           }
+  #         event: always
+  
 
 parameters:
   deploy_branch:
     type: string
-    default: "CXDO-578/slack-notifications"
+    default: circle-project-setup
 
 
 jobs:
-  build:
+  build-notify:
     docker:
-      - image: circleci/node:14.17
-    resource_class: medium
+      - image: cimg/node:17.2.0
+    resource_class: small
     steps:
+      # - trigger_slack_notification
       - checkout
       - run:
           name: Install SFCC CLI
           command: |
-            npx sfcc-ci
+            sudo npm install -g sfcc-ci
+            sfcc-ci --version
       - run:
           name: Authenticate with SFCC
           command: |
-            npx sfcc-ci client:auth $CLIENT_ID $CLIENT_SECRET
-      - notify_slack_error
-      - notify_slack_pass
-      
+            sfcc-ci client:auth $CLIENT_ID $CLIENT_SECRET
+            
       # - run:
       #     name: Status of created sandbox by SFCC User
       #     command: |
       #       npx sfcc-ci sandbox:get --sandbox $my_sandbox_id
       
-      # - run:
-      #     name: List of sandboxes
-      #     command: |
-      #       npx sfcc-ci sandbox:list
-      # - notify_slack_error
-      # - notify_slack_pass
+      - run:
+          name: List of sandboxes
+          command: |
+            sfcc-ci sandbox:list
+      - notify_slack_error
+      - notify_slack_pass
+    
+      - when:
+          condition:
+            equal: [ CXDO-578/slack-notifications, << pipeline.git.branch >> ]
+          steps:
+            - run: echo "I am on slack-notification [branch]"
+            
+  notify:
+    docker:
+      - image: "cimg/base:stable"
+    steps:
+      - slack/notify:
+          custom: |
+            {
+              "text":"CircleCI job succeeded!",
+              "blocks": [
+                {
+                  "type":"header",
+                  "text":{
+                    "type":"plain_text",
+                    "text":"Job Succeeded! :white_check_mark:",
+                    "emoji":true
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+               "type":"mrkdwn",
+               "text":"*Project*: $CIRCLE_PROJECT_REPONAME"
+            },
+            {
+               "type":"mrkdwn",
+               "text":"*When*: $(date +'%m/%d/%Y %T')"
+            },
 
-      # - slack/notify:
-      #     custom: |
-      #       {
-      #         "blocks": [
-      #          {
-      #            "type": "section",
-      #            "fields": [
-      #              {
-      #                "type": "mrkdwn"
-      #                "text": "Current Job: $CIRCLE_JOB",
-      #                "emoji": true
-      #              }
-      #          } 
-      #       }
-      #     event: always
-      
-      # - slack/notify:
-      #     branch_pattern: "CXDO-578/slack-notifications"
-      #     channel: devops-notify-sfcc-cd
-      #     event: fail
-      #     template: basic_fail_1
+            {
+               "type":"mrkdwn",
+               "text":"*User-Name*: $CIRCLE_PROJECT_USERNAME"
+            },
+            {
+               "type":"mrkdwn",
+               "text":"*url*: $CIRCLE_BUILD_URL"
+            },
 
-      # - slack/notify:
-      #     branch_pattern: "CXDO-578/slack-notifications"
-      #     channel: devops-notify-sfcc-cd
-      #     event: pass
-      #     template: basic_success_1
+            {
+               "type":"mrkdwn",
+               "text":"*commit*: $CCIRCLE_SHA1"
+            }
+                  ],
+                  "accessory":{
+                    "type":"image",
+                    "image_url":"https://assets.brandfolder.com/otz5mn-bw4j2w-6jzqo8/original/circle-logo-badge-black.png",
+                    "alt_text":"CircleCI logo"
+                  }
+                },
+                {
+                  "type":"actions",
+                  "elements":[
+                    {
+                      "type":"button",
+                      "text":{
+                        "type":"plain_text",
+                        "text":"View Job"
+                      },
+                    }
+                  ]
+                }
+              ]
+            }
+          event: always  
 
-
-
-            # if [ "${CIRCLE_JOB}" = "build" ]; then
-            #     if [ "${CIRCLE_BRANCH}" = "CXDO-578/slack-notifications" ]; then
-            #       status=":white_check_mark: Success"
-            #     else
-            #        status=":warning: Failed"
-            #     fi
-            #     curl -X POST -H 'Content-type: application/json' \
-            #     --data '{"text":"'"${status}"' - Build '"${CIRCLE_BUILD_URL}"' on branch '"${CIRCLE_BRANCH}"'"}' \
-            #     ${SLACK_WEBHOOK_URL}
-            #     fi
 
 workflows:
-  version: 2
-  build_and_notify: 
+  main-workflow:
     jobs:
-      - build:
+      - build-notify:
           context:
-            - slack-build-notification-secrets
+            - slack-notifications
           filters:
             branches:
               only:
-                - CXDO-578/slack-notifications
-                
+                - circleci-project-setup
+      - notify:
+         requires:
+           - build-notify
+         context: slack-notifications
