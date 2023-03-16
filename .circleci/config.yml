@@ -69,6 +69,16 @@ jobs:
           name: List of sandboxes
           command: |
             sfcc-ci sandbox:list
+      
+      - slack/notify:
+            event: fail
+            template: basic_fail_1
+
+      - slack/notify:
+            event: pass
+            template: basic_pass_1
+      
+      
       # - notify_slack_error
       # - notify_slack_pass
     
