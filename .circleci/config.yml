@@ -1,96 +1,160 @@
 version: 2.1
-
-slack-fail-post-step: &slack-fail-post-step
-  post-steps:
-    - slack/notify:
-        custom: |
-          {
-            "text": "",
-            "blocks": [
-              {
-                "type": "section",
-                "text": {
-                  "type": "mrkdwn",
-                  "text": "❌ *Failure* #${CIRCLE_BUILD_NUM} `${CIRCLE_PROJECT_REPONAME}` on `${CIRCLE_BRANCH}`"
-                }
-              },
-              {
-                "type": "actions",
-                "elements": [
-                  {
-                    "type": "button",
-                    "text": {
-                      "type": "plain_text",
-                      "text": "View Job"
-                    },
-                    "url": "${CIRCLE_BUILD_URL}"
-                  }
-                ]
-              }
-            ]
-          }
-        event: fail
-
 orbs:
-  slack: circleci/slack@4.1.1
+  slack: circleci/slack@4.10.1
+
+commands:
+#   notify_slack_error:
+#     steps:
+#       - slack/notify:
+#           event: fail
+#           template: basic_fail_1
+
+#   notify_slack_pass:
+#     steps:
+#       - slack/notify:
+#           event: pass
+#           template: basic_success_1
+  
+  trigger_slack_notification:
+    steps:
+      - slack/notify:
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "plain_text",
+                      "text": "*CircleCI job succeeded*",
+                      "emoji": true
+                    }
+                  ]
+                }
+              ]
+            }
+          event: always
+  
+
+parameters:
+  deploy_branch:
+    type: string
+    default: "circleci-project-setup"
+
 
 jobs:
-  build:
+  build-notify:
     docker:
-      - image: cimg/base:stable
-      
+      - image: cimg/node:17.2.0
+    resource_class: small
     steps:
+      - trigger_slack_notification
+      - checkout
       - run:
-          name: Success
+          name: Install SFCC CLI
           command: |
-            exit 0
-  last-job:
-    docker:
-      - image: cimg/base:stable
+            sudo npm install -g sfcc-ci
+            sfcc-ci --version
+      - run:
+          name: Authenticate with SFCC
+          command: |
+            sfcc-ci client:auth $CLIENT_ID $CLIENT_SECRET
+            
+      # - run:
+      #     name: Status of created sandbox by SFCC User
+      #     command: |
+      #       npx sfcc-ci sandbox:get --sandbox $my_sandbox_id
       
-    steps:
       - run:
-          name: Success
+          name: List of sandboxes
           command: |
-            exit 0
+            sfcc-ci sandbox:list
+      # - notify_slack_error
+      # - notify_slack_pass
+    
+      - when:
+          condition:
+            equal: [ CXDO-578/slack-notifications, << pipeline.git.branch >> ]
+          steps:
+            - run: echo "I am on slack-notification [branch]"
+            
+  # notify:
+  #   docker:
+  #     - image: "cimg/base:stable"
+  #   steps:
+  #     - slack/notify:
+  #         custom: |
+  #           {
+  #             "text":"CircleCI job succeeded!",
+  #             "blocks": [
+  #               {
+  #                 "type":"header",
+  #                 "text":{
+  #                   "type":"plain_text",
+  #                   "text":"Job Succeeded! :white_check_mark:",
+  #                   "emoji":true
+  #                 }
+  #               },
+  #               {
+  #                 "type": "section",
+  #                 "fields": [
+  #                   {
+  #              "type":"mrkdwn",
+  #              "text":"*Project*: $CIRCLE_PROJECT_REPONAME"
+  #           },
+  #           {
+  #              "type":"mrkdwn",
+  #              "text":"*When*: $(date +'%m/%d/%Y %T')"
+  #           },
+
+  #           {
+  #              "type":"mrkdwn",
+  #              "text":"*User-Name*: $CIRCLE_PROJECT_USERNAME"
+  #           },
+  #           {
+  #              "type":"mrkdwn",
+  #              "text":"*url*: $CIRCLE_BUILD_URL"
+  #           },
+
+  #           {
+  #              "type":"mrkdwn",
+  #              "text":"*commit*: $CCIRCLE_SHA1"
+  #           }
+  #                 ],
+  #                 "accessory":{
+  #                   "type":"image",
+  #                   "image_url":"https://assets.brandfolder.com/otz5mn-bw4j2w-6jzqo8/original/circle-logo-badge-black.png",
+  #                   "alt_text":"CircleCI logo"
+  #                 }
+  #               },
+  #               {
+  #                 "type":"actions",
+  #                 "elements":[
+  #                   {
+  #                     "type":"button",
+  #                     "text":{
+  #                       "type":"plain_text",
+  #                       "text":"View Job"
+  #                     },
+  #                   }
+  #                 ]
+  #               }
+  #             ]
+  #           }
+  #         event: always  
+
+
 workflows:
-  version: 2
-  workflow:
+  main-workflow:
     jobs:
-      - build:
-          context: 
-            - slack
-          <<: *slack-fail-post-step
-      - last-job:
-          context: [slack-notifications]
-          requires:
-            - build
-          post-steps:
-            - slack/notify:
-                custom: |
-                  {
-                    "text": "",
-                    "blocks": [
-                      {
-                        "type": "section",
-                        "text": {
-                          "type": "mrkdwn",
-                          "text": "✅ *Success* #${CIRCLE_BUILD_NUM} `${CIRCLE_PROJECT_REPONAME}` on `${CIRCLE_BRANCH}`"
-                        } 
-                      },
-                      {
-                        "type": "actions",
-                        "elements": [
-                          {
-                            "type": "button",
-                            "text": {
-                              "type": "plain_text",
-                              "text": "View Job"
-                            },
-                            "url": "${CIRCLE_BUILD_URL}"
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                event: always
+      - build-notify:
+          context:
+            - slack-notifications
+          filters:
+            branches:
+              only:
+                - circleci-project-setup
+      # - notify:
+      #    requires:
+      #      - build-notify
+      #    context: slack-build-notification-secrets
