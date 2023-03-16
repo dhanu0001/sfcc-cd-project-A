@@ -82,9 +82,9 @@ workflows:
   main-workflow:
     jobs:
       - build-notify:
-          <<: *slack-fail-post-step
           context:
             - slack-notifications
+          <<: *slack-fail-post-step
           post-steps:
             - slack/notify:
                 custom: |
@@ -95,9 +95,25 @@ workflows:
                         "type": "section",
                         "text": {
                           "type": "mrkdwn",
-                          "text": "*Status Of Job* #${CIRCLE_BUILD_NUM} `${CIRCLE_PROJECT_REPONAME}` on `${CIRCLE_BRANCH}`"
+                          "text": "✅ *Job-status* #${CIRCLE_BUILD_NUM} `${CIRCLE_PROJECT_REPONAME}` on `${CIRCLE_BRANCH}`"
                         }
                       },
+                      {
+                          "type": "mrkdwn",
+                          "text": "*Project*: $CIRCLE_PROJECT_REPONAME"
+                      },
+                      {
+                          "type": "mrkdwn",
+                          "text": "*Job Number*: $CIRCLE_BUILD_NUM"
+                      },
+                      {
+                          "type": "mrkdwn",
+                          "text": "*When*: $(date +'%m/%d/%Y %T')"
+                      },
+                      {
+                          "type": "mrkdwn",
+                          "text": "*commit*: $CIRCLE_SHA1"
+                          },
                       {
                         "type": "actions",
                         "elements": [
@@ -105,7 +121,7 @@ workflows:
                             "type": "button",
                             "text": {
                               "type": "plain_text",
-                              "text": "Visit Job"
+                              "text": "View Job"
                             },
                             "url": "${CIRCLE_BUILD_URL}"
                           }
