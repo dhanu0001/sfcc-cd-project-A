@@ -187,13 +187,13 @@ workflows:
                 event: always
                 custom: |
                   {
-                        	"text": "CircleCI job succeeded!",
+                        	"text": "CircleCI job failed.",
                         	"blocks": [
                         		{
                         			"type": "header",
                         			"text": {
                         				"type": "plain_text",
-                        				"text": "Job Succeeded. :white_check_mark:",
+                        				"text": "Job Failed. :red_circle:",
                         				"emoji": true
                         			}
                         		},
@@ -204,16 +204,23 @@ workflows:
                         					"type": "mrkdwn",
                         					"text": "*Project*: $CIRCLE_PROJECT_REPONAME"
                         				},
-                                        {
-                                            "type": "mrkdwn",
-                                            "text": "*Job Number*: $CIRCLE_BUILD_NUM"
-                                        },
-                                        {
-                                            "type": "mrkdwn",
-                                            "text": "*When*: $(date +'%m/%d/%Y %T')"
-                                        }
+                                {
+                                    "type": "mrkdwn",
+                                    "text": "*Job Number*: $CIRCLE_BUILD_NUM"
+                                },
+                                {
+                                    "type": "mrkdwn",
+                                    "text": "*When*: $(date +'%m/%d/%Y %T')"
+                                }
                         			]
                         		},
+                            {
+                              "type": "section",
+                              "text": {
+                                "type": "mrkdwn",
+                                "text": "```${SLACK_ERROR_MESSAGE}```"
+                              }
+                            },
                         		{
                         			"type": "actions",
                         			"elements": [
