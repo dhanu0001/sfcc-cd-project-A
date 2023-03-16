@@ -147,6 +147,13 @@ workflows:
                                         }
                         			]
                         		},
+                            {
+                                          "type": "section",
+                                          "text": {
+                                            "type": "mrkdwn",
+                                            "text": "error in job steps please check and verify"
+                                          }
+                                        },
                         		{
                         			"type": "actions",
                         			"elements": [
