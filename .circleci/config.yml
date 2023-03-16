@@ -88,54 +88,62 @@ workflows:
             - slack/notify:
                 custom: |
                   {
-                        	"text": "CircleCI job failed.",
-                        	"blocks": [
-                        		{
-                        			"type": "header",
-                        			"text": {
-                        				"type": "plain_text",
-                        				"text": "Job Failed. :red_circle:",
-                        				"emoji": true
-                        			}
-                        		},
-                        		{
-                        			"type": "section",
-                        			"fields": [
-                        				{
-                        					"type": "mrkdwn",
-                        					"text": "*Project*: $CIRCLE_PROJECT_REPONAME"
-                        				},
+                            "attachments": [
                                 {
-                                    "type": "mrkdwn",
-                                    "text": "*Job Number*: $CIRCLE_BUILD_NUM"
-                                },
-                                {
-                                    "type": "mrkdwn",
-                                    "text": "*When*: $(date +'%m/%d/%Y %T')"
+                                    "color": "#000000",
+                                    "blocks": [
+                                        {
+                                            "type": "header",
+                                            "text": {
+                                                "type": "plain_text",
+                                                "text": "job-failed",
+                                                "emoji": true
+                                            }
+                                        },
+                                        {
+                                            "type": "section",
+                                            "fields": [
+                                                {
+                                                    "type": "mrkdwn",
+                                                    "text": "*Project*: $CIRCLE_PROJECT_REPONAME"
+                                                },
+                                                {
+                                                    "type": "mrkdwn",
+                                                    "text": "*Job Number*: $CIRCLE_BUILD_NUM"
+                                                },
+                                                {
+                                                    "type": "mrkdwn",
+                                                    "text": "*When*: $(date +'%m/%d/%Y %T')"
+                                                },
+                                                {
+                                                    "type": "mrkdwn",
+                                                    "text": "*Mentions*: $SLACK_PARAM_MENTIONS"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                          "type": "section",
+                                          "text": {
+                                            "type": "mrkdwn",
+                                            "text": "error in job steps please check and verify"
+                                          }
+                                        },
+                                        {
+                                            "type": "actions",
+                                            "elements": [
+                                                {
+                                                    "type": "button",
+                                                    "text": {
+                                                        "type": "plain_text",
+                                                        "text": "Visit Job"
+                                                    },
+                                                    "url": "${CIRCLE_BUILD_URL}"
+                                                }
+                                            ]
+                                        }
+                                    ]
                                 }
-                        			]
-                        		},
-                            {
-                              "type": "section",
-                              "text": {
-                                "type": "mrkdwn",
-                                "text": "error in job steps, please check and verify"
-                              }
-                            },
-                        		{
-                        			"type": "actions",
-                        			"elements": [
-                        				{
-                        					"type": "button",
-                        					"text": {
-                        						"type": "plain_text",
-                        						"text": "Visit Job"
-                        					},
-                        					"url": "${CIRCLE_BUILD_URL}"
-                        				}
-                        			]
-                        		}
-                        	]
+                            ]
                         }
                 event: fail
             
@@ -167,16 +175,9 @@ workflows:
                                         {
                                             "type": "mrkdwn",
                                             "text": "*When*: $(date +'%m/%d/%Y %T')"
-                                        },         
+                                        }
                         			]
                         		},
-                            {
-                              "type": "section",
-                              "text": {
-                                "type": "mrkdwn",
-                                "text": "Kudos, job ran successfully"
-                              }
-                            },
                         		{
                         			"type": "actions",
                         			"elements": [
