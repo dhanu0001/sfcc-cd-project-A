@@ -166,10 +166,6 @@ workflows:
                         				},
                                         {
                                             "type": "mrkdwn",
-                                            "text": "*Job*: $CIRCLE_JOB"
-                                        },
-                                        {
-                                            "type": "mrkdwn",
                                             "text": "*Job Number*: $CIRCLE_BUILD_NUM"
                                         },
                                         {
