@@ -140,6 +140,10 @@ workflows:
                                         {
                                             "type": "mrkdwn",
                                             "text": "*When*: $(date +'%m/%d/%Y %T')"
+                                        },
+                                        {
+                                            "type": "mrkdwn",
+                                            "text": "*Job Name*: $CIRCLE_JOB"
                                         }
                         			]
                         		},
