@@ -6,7 +6,7 @@ orbs:
 parameters:
   deploy_branch:
     type: string
-    default: "circleci-project-setup"
+    default: "CXDO-578/slack-notifications"
 
 jobs:
   build-notify:
@@ -28,7 +28,7 @@ jobs:
       - run:
           name: Status of created sandbox by SFCC User
           command: |
-            npx sfcc-ci sandbox:get --sandbox $my_sandbox_id
+            npx sfcc-ci sandbox:get --sandbox $SANDBOX_ID
       
       - run:
           name: List of sandboxes
@@ -48,67 +48,59 @@ workflows:
     jobs:
       - build-notify:
           context:
-            - slack-notifications
+            - slack-build-notification-secrets
           post-steps:
             - slack/notify:
                 custom: |
                   {
-                            "attachments": [
+                        	"text": "CircleCI job failed.",
+                        	"blocks": [
+                        		{
+                        			"type": "header",
+                        			"text": {
+                        				"type": "plain_text",
+                        				"text": "Job Failed. :red_circle:",
+                        				"emoji": true
+                        			}
+                        		},
+                        		{
+                        			"type": "section",
+                        			"fields": [
+                        				{
+                        					"type": "mrkdwn",
+                        					"text": "*Project*: $CIRCLE_PROJECT_REPONAME"
+                        				},
                                 {
-                                    "color": "#000000",
-                                    "blocks": [
-                                        {
-                                            "type": "header",
-                                            "text": {
-                                                "type": "plain_text",
-                                                "text": "Job Failed. :red_circle:",
-                                                "emoji": true
-                                            }
-                                        },
-                                        {
-                                            "type": "section",
-                                            "fields": [
-                                                {
-                                                    "type": "mrkdwn",
-                                                    "text": "*Project*: $CIRCLE_PROJECT_REPONAME"
-                                                },
-                                                {
-                                                    "type": "mrkdwn",
-                                                    "text": "*Job Number*: $CIRCLE_BUILD_NUM"
-                                                },
-                                                {
-                                                    "type": "mrkdwn",
-                                                    "text": "*When*: $(date +'%m/%d/%Y %T')"
-                                                },
-                                                {
-                                                    "type": "mrkdwn",
-                                                    "text": "*Job Name*: $CIRCLE_JOB"
-                                                }
-                                            ]
-                                        },
-                                        {
-                                          "type": "section",
-                                          "text": {
-                                            "type": "mrkdwn",
-                                            "text": "error in job steps please check and verify"
-                                          }
-                                        },
-                                        {
-                                            "type": "actions",
-                                            "elements": [
-                                                {
-                                                    "type": "button",
-                                                    "text": {
-                                                        "type": "plain_text",
-                                                        "text": "Visit Job"
-                                                    },
-                                                    "url": "${CIRCLE_BUILD_URL}"
-                                                }
-                                            ]
-                                        }
-                                    ]
+                                    "type": "mrkdwn",
+                                    "text": "*Job Number*: $CIRCLE_BUILD_NUM"
+                                },
+                                {
+                                    "type": "mrkdwn",
+                                    "text": "*When*: $(date +'%m/%d/%Y %T')"
                                 }
-                            ]
+                        			]
+                        		},
+                            {
+                              "type": "section",
+                              "text": {
+                                "type": "mrkdwn",
+                                "text": "error in job steps please check and verify"
+                              }
+                            },
+                        		{
+                        			"type": "actions",
+                        			"elements": [
+                        				{
+                        					"type": "button",
+                        					"text": {
+                        						"type": "plain_text",
+                        						"text": "Visit Job"
+                        					},
+                        					"url": "${CIRCLE_BUILD_URL}"
+                        				}
+                        			]
+                        		}
+                        	]
                         }
                 event: fail
             
@@ -172,7 +164,7 @@ workflows:
           filters:
             branches:
               only:
-                - circleci-project-setup
+                - CXDO-578/slack-notifications
       # - notify:
       #    requires:
       #      - build-notify
