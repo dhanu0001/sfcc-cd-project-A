@@ -82,9 +82,9 @@ workflows:
   main-workflow:
     jobs:
       - build-notify:
+          <<: *slack-fail-post-step
           context:
             - slack-notifications
-          <<: *slack-fail-post-step
           post-steps:
             - slack/notify:
                 custom: |
