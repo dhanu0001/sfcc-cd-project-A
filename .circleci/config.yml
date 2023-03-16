@@ -1,35 +1,35 @@
 version: 2.1
 
-slack-fail-post-step: &slack-fail-post-step
-  post-steps:
-    - slack/notify:
-        custom: |
-          {
-            "text": "",
-            "blocks": [
-              {
-                "type": "section",
-                "text": {
-                  "type": "mrkdwn",
-                  "text": "❌ *Failure* #${CIRCLE_BUILD_NUM} `${CIRCLE_PROJECT_REPONAME}` on `${CIRCLE_BRANCH}`"
-                }
-              },
-              {
-                "type": "actions",
-                "elements": [
-                  {
-                    "type": "button",
-                    "text": {
-                      "type": "plain_text",
-                      "text": "View Job"
-                    },
-                    "url": "${CIRCLE_BUILD_URL}"
-                  }
-                ]
-              }
-            ]
-          }
-        event: fail
+# slack-fail-post-step: &slack-fail-post-step
+#   post-steps:
+#     - slack/notify:
+#         custom: |
+#           {
+#             "text": "",
+#             "blocks": [
+#               {
+#                 "type": "section",
+#                 "text": {
+#                   "type": "mrkdwn",
+#                   "text": "❌ *Failure* #${CIRCLE_BUILD_NUM} `${CIRCLE_PROJECT_REPONAME}` on `${CIRCLE_BRANCH}`"
+#                 }
+#               },
+#               {
+#                 "type": "actions",
+#                 "elements": [
+#                   {
+#                     "type": "button",
+#                     "text": {
+#                       "type": "plain_text",
+#                       "text": "View Job"
+#                     },
+#                     "url": "${CIRCLE_BUILD_URL}"
+#                   }
+#                 ]
+#               }
+#             ]
+#           }
+#         event: fail
 
 orbs:
   slack: circleci/slack@4.1.1
@@ -59,10 +59,10 @@ jobs:
           command: |
             sfcc-ci client:auth $CLIENT_ID $CLIENT_SECRET
             
-      - run:
-          name: Status of created sandbox by SFCC User
-          command: |
-            npx sfcc-ci sandbox:get --sandbox $my_sandbox_id
+      # - run:
+      #     name: Status of created sandbox by SFCC User
+      #     command: |
+      #       npx sfcc-ci sandbox:get --sandbox $my_sandbox_id
       
       - run:
           name: List of sandboxes
@@ -84,7 +84,6 @@ workflows:
       - build-notify:
           context:
             - slack-notifications
-          <<: *slack-fail-post-step
           post-steps:
             - slack/notify:
                 custom: |
