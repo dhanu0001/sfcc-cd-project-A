@@ -6,7 +6,7 @@ orbs:
 parameters:
   deploy_branch:
     type: string
-    default: "CXDO-578/slack-notifications"
+    default: "circle-project-setup"
 
 jobs:
   build-notify:
@@ -48,7 +48,7 @@ workflows:
     jobs:
       - build-notify:
           context:
-            - slack-build-notification-secrets
+            - slack-notifications
           post-steps:
             - slack/notify:
                 custom: |
@@ -164,7 +164,7 @@ workflows:
           filters:
             branches:
               only:
-                - CXDO-578/slack-notifications
+                - circle-project-setup
       # - notify:
       #    requires:
       #      - build-notify
