@@ -3,6 +3,7 @@ version: 2.1
 slack-fail-post-step: &slack-fail-post-step
   post-steps:
     - slack/notify:
+        event: fail
         custom: |
           {
             "text": "",
@@ -29,7 +30,6 @@ slack-fail-post-step: &slack-fail-post-step
               }
             ]
           }
-        event: fail
 
 orbs:
   slack: circleci/slack@4.10.1
@@ -184,6 +184,7 @@ workflows:
           <<: *slack-fail-post-step
           post-steps:
             - slack/notify:
+                event: pass
                 custom: |
                   {
                     "text": "",
@@ -210,7 +211,6 @@ workflows:
                       }
                     ]
                   }
-                event: always
           # filters:
           #   branches:
           #     only:
