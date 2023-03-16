@@ -166,7 +166,7 @@ workflows:
                         				},
                                         {
                                             "type": "mrkdwn",
-                                            "text": "*Jobr*: $CIRCLE_JOB"
+                                            "text": "*Job*: $CIRCLE_JOB"
                                         },
                                         {
                                             "type": "mrkdwn",
