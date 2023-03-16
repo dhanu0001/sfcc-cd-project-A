@@ -109,4 +109,4 @@ workflows:
       - notify:
          requires:
            - build-notify
-         context: [slack-notifications]
+         context: [slack-notifications] 
