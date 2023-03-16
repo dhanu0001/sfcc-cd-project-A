@@ -68,6 +68,7 @@ jobs:
           name: List of sandboxes
           command: |
             sfcc-ci sandbox:list
+          <<: *slack-fail-post-step
       # - notify_slack_error
       # - notify_slack_pass
     
@@ -84,7 +85,7 @@ workflows:
       - build-notify:
           context:
             - slack-notifications
-          <<: *slack-fail-post-step
+          # <<: *slack-fail-post-step
           post-steps:
             - slack/notify:
                 custom: |
