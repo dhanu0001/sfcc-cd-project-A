@@ -3,37 +3,37 @@ orbs:
   slack: circleci/slack@4.10.1
 
 commands:
-  notify_slack_error:
-    steps:
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
-
-  notify_slack_pass:
-    steps:
-      - slack/notify:
-          event: pass
-          template: basic_success_1
-  
-  # trigger_slack_notification:
+  # notify_slack_error:
   #   steps:
   #     - slack/notify:
-  #         custom: |
-  #           {
-  #             "blocks": [
-  #               {
-  #                 "type": "section",
-  #                 "fields": [
-  #                   {
-  #                     "type": "plain_text",
-  #                     "text": "*CircleCI job succeeded*",
-  #                     "emoji": true
-  #                   }
-  #                 ]
-  #               }
-  #             ]
-  #           }
-  #         event: always
+  #         event: fail
+  #         template: basic_fail_1
+
+  # notify_slack_pass:
+  #   steps:
+  #     - slack/notify:
+  #         event: pass
+  #         template: basic_success_1
+  
+  trigger_slack_notification:
+    steps:
+      - slack/notify:
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "plain_text",
+                      "text": "*CircleCI job succeeded*",
+                      "emoji": true
+                    }
+                  ]
+                }
+              ]
+            }
+          event: always
   
 
 parameters:
@@ -48,7 +48,7 @@ jobs:
       - image: cimg/node:17.2.0
     resource_class: small
     steps:
-      # - trigger_slack_notification
+      - trigger_slack_notification
       - checkout
       - run:
           name: Install SFCC CLI
@@ -69,8 +69,8 @@ jobs:
           name: List of sandboxes
           command: |
             sfcc-ci sandbox:list
-      - notify_slack_error
-      - notify_slack_pass
+      # - notify_slack_error
+      # - notify_slack_pass
     
       - when:
           condition:
