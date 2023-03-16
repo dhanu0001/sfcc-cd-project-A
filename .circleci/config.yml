@@ -95,7 +95,7 @@ workflows:
                         "type": "section",
                         "text": {
                           "type": "mrkdwn",
-                          "text": "*Status* #${CIRCLE_BUILD_NUM} `${CIRCLE_PROJECT_REPONAME}` on `${CIRCLE_BRANCH}`"
+                          "text": "*Status Of Job* #${CIRCLE_BUILD_NUM} `${CIRCLE_PROJECT_REPONAME}` on `${CIRCLE_BRANCH}`"
                         }
                       },
                       {
