@@ -105,7 +105,7 @@ workflows:
                             "type": "button",
                             "text": {
                               "type": "plain_text",
-                              "text": "View Job"
+                              "text": "Visit Job for overview"
                             },
                             "url": "${CIRCLE_BUILD_URL}"
                           }
