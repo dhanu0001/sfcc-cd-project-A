@@ -186,63 +186,55 @@ workflows:
             - slack/notify:
                 event: always
                 custom: |
-                  {{
-                            "attachments": [
+                  {
+                        	"text": "CircleCI job failed.",
+                        	"blocks": [
+                        		{
+                        			"type": "header",
+                        			"text": {
+                        				"type": "plain_text",
+                        				"text": "Job Failed. :red_circle:",
+                        				"emoji": true
+                        			}
+                        		},
+                        		{
+                        			"type": "section",
+                        			"fields": [
+                        				{
+                        					"type": "mrkdwn",
+                        					"text": "*Project*: $CIRCLE_PROJECT_REPONAME"
+                        				},
                                 {
-                                    "color": "#000000",
-                                    "blocks": [
-                                        {
-                                            "type": "header",
-                                            "text": {
-                                                "type": "plain_text",
-                                                "text": "<< parameters.message >>",
-                                                "emoji": true
-                                            }
-                                        },
-                                        {
-                                            "type": "section",
-                                            "fields": [
-                                                {
-                                                    "type": "mrkdwn",
-                                                    "text": "*Project*: $CIRCLE_PROJECT_REPONAME"
-                                                },
-                                                {
-                                                    "type": "mrkdwn",
-                                                    "text": "*Job Number*: $CIRCLE_BUILD_NUM"
-                                                },
-                                                {
-                                                    "type": "mrkdwn",
-                                                    "text": "*When*: $(date +'%m/%d/%Y %T')"
-                                                },
-                                                {
-                                                    "type": "mrkdwn",
-                                                    "text": "*Pull Request Number*: $CIRCLE_PULL_REQUEST"
-                                                }
-                                            ]
-                                        },
-                                        {
-                                          "type": "section",
-                                          "text": {
-                                            "type": "mrkdwn",
-                                            "text": "```${SLACK_ERROR_MESSAGE}```"
-                                          }
-                                        },
-                                        {
-                                            "type": "actions",
-                                            "elements": [
-                                                {
-                                                    "type": "button",
-                                                    "text": {
-                                                        "type": "plain_text",
-                                                        "text": "Visit Job"
-                                                    },
-                                                    "url": "${CIRCLE_BUILD_URL}"
-                                                }
-                                            ]
-                                        }
-                                    ]
+                                    "type": "mrkdwn",
+                                    "text": "*Job Number*: $CIRCLE_BUILD_NUM"
+                                },
+                                {
+                                    "type": "mrkdwn",
+                                    "text": "*When*: $(date +'%m/%d/%Y %T')"
                                 }
-                            ]
+                        			]
+                        		},
+                            {
+                              "type": "section",
+                              "text": {
+                                "type": "mrkdwn",
+                                "text": "```${SLACK_ERROR_MESSAGE}```"
+                              }
+                            },
+                        		{
+                        			"type": "actions",
+                        			"elements": [
+                        				{
+                        					"type": "button",
+                        					"text": {
+                        						"type": "plain_text",
+                        						"text": "Visit Job"
+                        					},
+                        					"url": "${CIRCLE_BUILD_URL}"
+                        				}
+                        			]
+                        		}
+                        	]
                         }
           # filters:
           #   branches:
