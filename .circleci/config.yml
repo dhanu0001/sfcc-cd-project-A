@@ -184,7 +184,7 @@ workflows:
           <<: *slack-fail-post-step
           post-steps:
             - slack/notify:
-                event: pass
+                event: always
                 custom: |
                   {
                     "text": "",
