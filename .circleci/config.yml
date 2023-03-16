@@ -62,7 +62,7 @@ workflows:
             - slack
           <<: *slack-fail-post-step
       - last-job:
-          context: [slack]
+          context: [slack-notifications]
           requires:
             - build
           post-steps:
