@@ -76,7 +76,7 @@ workflows:
                         "text": {
                           "type": "mrkdwn",
                           "text": "✅ *Success* #${CIRCLE_BUILD_NUM} `${CIRCLE_PROJECT_REPONAME}` on `${CIRCLE_BRANCH}`"
-                        }
+                        } 
                       },
                       {
                         "type": "actions",
