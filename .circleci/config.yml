@@ -6,7 +6,7 @@ orbs:
 parameters:
   deploy_branch:
     type: string
-    default: "circle-project-setup"
+    default: "circleci-project-setup"
 
 jobs:
   build-notify:
@@ -77,10 +77,6 @@ workflows:
                                 {
                                     "type": "mrkdwn",
                                     "text": "*When*: $(date +'%m/%d/%Y %T')"
-                                },
-                                {
-                                    "type": "mrkdwn",
-                                    "text": "*Commit-ID*: $CIRCLE_SHA1"
                                 }
                         			]
                         		},
@@ -168,7 +164,7 @@ workflows:
           filters:
             branches:
               only:
-                - circle-project-setup
+                - circleci-project-setup
       # - notify:
       #    requires:
       #      - build-notify
