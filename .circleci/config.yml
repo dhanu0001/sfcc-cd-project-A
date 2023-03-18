@@ -77,6 +77,10 @@ workflows:
                                 {
                                     "type": "mrkdwn",
                                     "text": "*When*: $(date +'%m/%d/%Y %T')"
+                                },
+                                {
+                                    "type": "mrkdwn",
+                                    "text": "*Commit-ID*: $CIRCLE_SHA1"
                                 }
                         			]
                         		},
