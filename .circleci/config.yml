@@ -136,6 +136,10 @@ workflows:
                                         {
                                             "type": "mrkdwn",
                                             "text": "*Job Name*: $CIRCLE_JOB"
+                                        },
+                                        {
+                                            "type": "mrkdwn",
+                                            "text": "*Commit-ID*: $CIRCLE_SHA1"
                                         }
                         			]
                         		},
