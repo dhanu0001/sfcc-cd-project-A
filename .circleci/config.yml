@@ -25,10 +25,10 @@ jobs:
           command: |
             sfcc-ci client:auth $CLIENT_ID $CLIENT_SECRET
             
-      - run:
-          name: Status of created sandbox by SFCC User
-          command: |
-            npx sfcc-ci sandbox:get --sandbox $SANDBOX_ID
+      # - run:
+      #     name: Status of created sandbox by SFCC User
+      #     command: |
+      #       npx sfcc-ci sandbox:get --sandbox $SANDBOX_ID
       
       - run:
           name: List of sandboxes
