@@ -140,6 +140,10 @@ workflows:
                                         {
                                             "type": "mrkdwn",
                                             "text": "*Commit-ID*: $CIRCLE_SHA1"
+                                        },
+                                        {
+                                            "type": "mrkdwn",
+                                            "text": "*Slack-Job-Status*: $SLACK_JOB_STATUS"
                                         }
                         			]
                         		},
