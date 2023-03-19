@@ -6,7 +6,7 @@ orbs:
 parameters:
   deploy_branch:
     type: string
-    default: "*"
+    default: "slack-notifcations"
 
 jobs:
   build-notify:
@@ -168,7 +168,7 @@ workflows:
           filters:
             branches:
               only:
-                - "*"
+                - "slack-notifcations"
       # - notify:
       #    requires:
       #      - build-notify
