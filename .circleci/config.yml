@@ -103,6 +103,7 @@ workflows:
                         	]
                         }
                 event: fail
+              on_pull_requests: true
             
             - slack/notify:
                 event: pass
