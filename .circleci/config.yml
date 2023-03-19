@@ -165,6 +165,7 @@ workflows:
                         		}
                         	]
                         }
+              on_pull_requests: true
           filters:
             branches:
               only:
