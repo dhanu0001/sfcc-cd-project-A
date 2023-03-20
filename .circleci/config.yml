@@ -85,6 +85,8 @@ workflows:
             branches:
               only:
                 - << pipeline.parameters.deploy_branch >>
+          context:
+            - slack-notifications
           post-steps:
             - slack/notify:
                 custom: |
