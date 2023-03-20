@@ -2,11 +2,26 @@ version: 2.1
 
 orbs:
   slack: circleci/slack@4.1.1
+  
+defaults: &defaults
+  SOME_VARIABLE: "SFCC_CI_SETUP"
 
+dev-env: &dev-env
+  environment:
+    <<: *defaults
 parameters:
   deploy_branch:
     type: string
     default: "slack-notifcations"
+  commit_message:
+    type: string
+    default: "slack-notifcations"
+
+
+# parameters:
+#   deploy_branch:
+#     type: string
+#     default: "slack-notifcations"
 
 jobs:
   build-notify:
@@ -34,6 +49,21 @@ jobs:
           name: List of sandboxes
           command: |
             sfcc-ci sandbox:list
+  test-hook:
+    docker:
+      - image: cimg/node:17.2.0
+    resource_class: small
+    environment:
+      <<: *defaults
+    steps:
+      - when:
+          condition:
+            matches: { pattern: "^\\[ci\\].+$", value: << pipeline.parameters.commit_message >> }
+          steps:
+            - run:
+                name: Test condition step
+                command: |
+                  echo "Should only run on commit with [ci] tag"
       # - notify_slack_error
       # - notify_slack_pass
     
@@ -50,6 +80,11 @@ workflows:
       - build-notify:
           context:
             - slack-notifications
+      - test-hook:
+          filters:
+            branches:
+              only:
+                - << pipeline.parameters.deploy_branch >>
           post-steps:
             - slack/notify:
                 custom: |
@@ -172,10 +207,6 @@ workflows:
                         	]
                         }
               on_pull_requests: true
-          filters:
-            branches:
-              only:
-                - "slack-notifcations"
       # - notify:
       #    requires:
       #      - build-notify
