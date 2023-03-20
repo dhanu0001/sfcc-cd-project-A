@@ -48,7 +48,7 @@ jobs:
       - run:
           name: List of sandboxes
           command: |
-            sfcc-ci sandbox:list
+            sfcc-ci sandbox:list --json
   test-hook:
     docker:
       - image: cimg/node:17.2.0
