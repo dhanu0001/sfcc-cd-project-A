@@ -44,6 +44,7 @@ jobs:
       #       - run: echo "I am on slack-notification [branch]"
                         
 workflows:
+  version: 2
   main-workflow:
     jobs:
       - build-notify:
