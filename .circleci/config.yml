@@ -1,227 +1,25 @@
 version: 2.1
 
+setup: true
+
 orbs:
-  slack: circleci/slack@4.1.1
   continuation: circleci/continuation@0.1.2
-  
-defaults: &defaults
-  SOME_VARIABLE: "SFCC_CI_SETUP"
-
-dev-env: &dev-env
-  environment:
-    <<: *defaults
-parameters:
-  deploy_branch:
-    type: string
-    default: "slack-notifcations"
-  commit_message:
-    type: string
-    default: "slack-notifcations"
-
-
-# parameters:
-#   deploy_branch:
-#     type: string
-#     default: "slack-notifcations"
 
 jobs:
-  build-notify:
-    docker:
-      - image: cimg/node:17.2.0
-    resource_class: small
+  setup:
+    executor: continuation/default
     steps:
       - checkout
       - run:
-          name: Install SFCC CLI
+          name: Generate config
           command: |
-            sudo npm install -g sfcc-ci
-            sfcc-ci --version
-      - run:
-          name: Authenticate with SFCC
-          command: |
-            sfcc-ci client:auth $CLIENT_ID $CLIENT_SECRET
-            
-      # - run:
-      #     name: Status of created sandbox by SFCC User
-      #     command: |
-      #       npx sfcc-ci sandbox:get --sandbox $SANDBOX_ID
-      
-      - run:
-          name: List of sandboxes
-          command: |
-            sfcc-ci sandbox:list
-  test-hook:
-    docker:
-      - image: cimg/node:17.2.0
-    resource_class: small
-    environment:
-      <<: *defaults
-    steps:
-      - when:
-          condition:
-            matches: { pattern: "^\\[ci\\].+$", value: << pipeline.parameters.commit_message >> }
-          steps:
-            - run:
-                name: Test condition step
-                command: |
-                  echo "Should only run on commit with [ci] tag"
-            - run:
-                name: Generate config
-                command: |
-                  echo $(git log --format=%B -n 1 $CIRCLE_SHA1)
-                  export GIT_COMMIT_MESSAGE=$(git log --format=%B -n 1 $CIRCLE_SHA1)
-                  yq -i ".parameters.commit_message.default = \"$GIT_COMMIT_MESSAGE\"" ./.circleci/config.yml
-            - continuation/continue:
-                  configuration_path: ./.circleci/config.yml
+            export GIT_COMMIT_MESSAGE="$(git log --format=%B -n 1 $CIRCLE_SHA1)"
+            echo "GIT_COMMIT_MESSAGE='$GIT_COMMIT_MESSAGE'"
+            yq -i ".parameters.commit_message.default = strenv(GIT_COMMIT_MESSAGE)" ./.circleci/main.yaml
+      - continuation/continue:
+          configuration_path: ./.circleci/main.yaml
 
-      # - notify_slack_error
-      # - notify_slack_pass
-    
-      # - when:
-      #     condition:
-      #       equal: [ CXDO-578/slack-notifications, << pipeline.git.branch >> ]
-      #     steps:
-      #       - run: echo "I am on slack-notification [branch]"
-                        
 workflows:
-  version: 2
-  main-workflow:
+  setup:
     jobs:
-      - build-notify:
-          context:
-            - slack-notifications
-      - test-hook:
-          filters:
-            branches:
-              only:
-                - << pipeline.parameters.deploy_branch >>
-          context:
-            - slack-notifications
-          requires:
-            - build-notify
-          post-steps:
-            - slack/notify:
-                custom: |
-                  {
-                        	"text": "CircleCI job failed.",
-                        	"blocks": [
-                        		{
-                        			"type": "header",
-                        			"text": {
-                        				"type": "plain_text",
-                        				"text": "Job Failed. :red_circle:",
-                        				"emoji": true
-                        			}
-                        		},
-                        		{
-                        			"type": "section",
-                        			"fields": [
-                        				{
-                        					"type": "mrkdwn",
-                        					"text": "*Project*: $CIRCLE_PROJECT_REPONAME"
-                        				},
-                                {
-                                    "type": "mrkdwn",
-                                    "text": "*Job Number*: $CIRCLE_BUILD_NUM"
-                                },
-                                {
-                                    "type": "mrkdwn",
-                                    "text": "*When*: $(date +'%m/%d/%Y %T')"
-                                }
-                        			]
-                        		},
-                            {
-                              "type": "section",
-                              "text": {
-                                "type": "mrkdwn",
-                                "text": "error in job steps please check and verify"
-                              }
-                            },
-                        		{
-                        			"type": "actions",
-                        			"elements": [
-                        				{
-                        					"type": "button",
-                        					"text": {
-                        						"type": "plain_text",
-                        						"text": "Visit Job"
-                        					},
-                        					"url": "${CIRCLE_BUILD_URL}"
-                        				}
-                        			]
-                        		}
-                        	]
-                        }
-                event: fail
-              on_pull_requests: true
-            
-            - slack/notify:
-                event: pass
-                custom: |
-                  {
-                        	"text": "CircleCI job succeeded!",
-                        	"blocks": [
-                        		{
-                        			"type": "header",
-                        			"text": {
-                        				"type": "plain_text",
-                        				"text": "Job Succeeded. :white_check_mark:",
-                        				"emoji": true
-                        			}
-                        		},
-                        		{
-                        			"type": "section",
-                        			"fields": [
-                        				{
-                        					"type": "mrkdwn",
-                        					"text": "*Project*: $CIRCLE_PROJECT_REPONAME"
-                        				},
-                                        {
-                                            "type": "mrkdwn",
-                                            "text": "*Job Number*: $CIRCLE_BUILD_NUM"
-                                        },
-                                        {
-                                            "type": "mrkdwn",
-                                            "text": "*When*: $(date +'%m/%d/%Y %T')"
-                                        },
-                                        {
-                                            "type": "mrkdwn",
-                                            "text": "*Job Name*: $CIRCLE_JOB"
-                                        },
-                                        {
-                                            "type": "mrkdwn",
-                                            "text": "*Commit-ID*: $CIRCLE_SHA1"
-                                        },
-                                        {
-                                            "type": "mrkdwn",
-                                            "text": "*Pull-Request*: $CI_PULL_REQUEST"
-                                        }
-                        			]
-                        		},
-                            {
-                                          "type": "section",
-                                          "text": {
-                                            "type": "mrkdwn",
-                                            "text": "Kudos, Job ran successfully"
-                                          }
-                                        },
-                        		{
-                        			"type": "actions",
-                        			"elements": [
-                        				{
-                        					"type": "button",
-                        					"text": {
-                        						"type": "plain_text",
-                        						"text": "Visit Job"
-                        					},
-                        					"url": "${CIRCLE_BUILD_URL}"
-                        				}
-                        			]
-                        		}
-                        	]
-                        }
-              on_pull_requests: true
-      # - notify:
-      #    requires:
-      #      - build-notify
-      #    context: slack-build-notification-secrets
+      - setup
