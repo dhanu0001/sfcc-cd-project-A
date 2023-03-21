@@ -1,0 +1,25 @@
+version: 2.1
+
+setup: true
+
+orbs:
+  continuation: circleci/continuation@0.1.2
+
+jobs:
+  setup:
+    executor: continuation/default
+    steps:
+      - checkout
+      - run:
+          name: Generate config
+          command: |
+            echo $(git log --format=%B -n 1 $CIRCLE_SHA1)
+            export GIT_COMMIT_MESSAGE=$(git log --format=%B -n 1 $CIRCLE_SHA1)
+            yq -i ".parameters.commit_message.default = \"$GIT_COMMIT_MESSAGE\"" ./.circleci/config.yml
+      - continuation/continue:
+          configuration_path: ./.circleci/config.yml
+
+workflows:
+  setup:
+    jobs:
+      - setup
