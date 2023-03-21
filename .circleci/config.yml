@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   slack: circleci/slack@4.1.1
+  continuation: circleci/continuation@0.1.2
   
 defaults: &defaults
   SOME_VARIABLE: "SFCC_CI_SETUP"
@@ -64,6 +65,15 @@ jobs:
                 name: Test condition step
                 command: |
                   echo "Should only run on commit with [ci] tag"
+            - run:
+                name: Generate config
+                command: |
+                  echo $(git log --format=%B -n 1 $CIRCLE_SHA1)
+                  export GIT_COMMIT_MESSAGE=$(git log --format=%B -n 1 $CIRCLE_SHA1)
+                  yq -i ".parameters.commit_message.default = \"$GIT_COMMIT_MESSAGE\"" ./.circleci/config.yml
+            - continuation/continue:
+                  configuration_path: ./.circleci/config.yml
+
       # - notify_slack_error
       # - notify_slack_pass
     
