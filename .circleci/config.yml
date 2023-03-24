@@ -1,25 +1,43 @@
 version: 2.1
+executors:
+  java-executor:
+    docker:
+      - image: circleci/openjdk:11-jdk
 
-setup: true
-
-orbs:
-  continuation: circleci/continuation@0.1.2
+# Set parameter here
+parameters:
+  deploy_to_QA_Automation:
+    type: boolean
+    default: false
 
 jobs:
-  setup:
-    executor: continuation/default
+  build:
+    executor: java-executor
     steps:
       - checkout
-      - run:
-          name: Generate config
-          command: |
-            export GIT_COMMIT_MESSAGE="$(git log --format=%B -n 1 $CIRCLE_SHA1)"
-            echo "GIT_COMMIT_MESSAGE='$GIT_COMMIT_MESSAGE'"
-            yq -i ".parameters.commit_message.default = strenv(GIT_COMMIT_MESSAGE)" ./.circleci/main.yaml
-      - continuation/continue:
-          configuration_path: ./.circleci/main.yaml
+      - unless:
+          condition: << pipeline.parameters.deploy_to_QA_Automation >> # by default this is triggered
+          steps:
+            - run: # build
+  deploy_to_dev:
+    executor: java-executor
+    steps:
+      - checkout
+      - when:
+         condition: << pipeline.parameters.deploy_to_QA_Automation >> # this would be triggered when you pass the parameter value via API
+         steps:
+           - run:
+             command: |
+               curl -u ${CIRCLECI_TOKEN}: -X POST --header "Content-Type: application/json" -d '{
+               "parameters": {
+               "deploy_to_dev": true
+            }
+         }' https://circleci.com/api/v2/project/${project_slug}/pipeline
+             
 
 workflows:
-  setup:
+  version: 2
+  build-deploy:
     jobs:
-      - setup
+      - build
+      - deploy_to_dev
