@@ -1,45 +1,22 @@
-version: 2.1
-executors:
-  java-executor:
-    docker:
-      - image: circleci/openjdk:11-jdk
-
-# Set parameter here
-parameters:
-  deploy_to_QA_Automation:
-    type: boolean
-    default: false
-
+version: 2
+general:
+  branches:
+    only:
+      - Test-automation-builds
 jobs:
   build:
-    executor: java-executor
-    steps:
-      - checkout
-      - unless:
-          condition: << pipeline.parameters.deploy_to_QA_Automation >> # by default this is triggered
-          steps:
-            - run: # build
-  deploy_to_dev:
-    executor: java-executor
-    steps:
-      - checkout
-      - when:
-         condition: << pipeline.parameters.deploy_to_QA_Automation >> # this would be triggered when you pass the parameter value via API
-         steps:
-           - run:
-               command: |
-                 echo "test-automation"
-#              command: |
-#                curl -u ${CIRCLECI_TOKEN}: -X POST --header "Content-Type: application/json" -d '{
-#                "parameters": {
-#                "deploy_to_dev": true
-#             }
-#          }' https://circleci.com/api/v2/project/${project_slug}/pipeline
-             
+    docker:
+      - image: spotify/alpine
 
-workflows:
-  version: 2
-  build-deploy:
-    jobs:
-      - build
-      - deploy_to_dev
+    steps:
+      - run:
+          name: Trigger the Build Job
+          command: |
+            printf "Triggering an "sfcc-cd-project" build on the Test-automation-builds branch\n\n"
+
+            BUILD_INFO=$(curl -X POST -H -d \
+                "{}" \
+                "https://circleci.com/api/v1/project/dhanu0001/sfcc-cd-project-A/tree/Test-automation-builds?circle-token=782ddf3c2db60b7ed64ac50489a16970899542c0")
+
+            printf "\n\nBuild triggered\n\n"
+            printf "Follow the progress of the build on \nhttps://circleci.com/gh/dhanu0001/sfcc-cd-project-A/tree/Test-automation-builds"
